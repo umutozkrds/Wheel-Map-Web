@@ -1,5 +1,115 @@
-<div class="map-container">
-    <div id="map" class="map"></div>
-</div>
+<div class="page-container">
+    <!-- Left Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>Wheel Map</h1>
+            <p class="subtitle">Explore Turkey & Discover Places</p>
+        </div>
 
-<p>map works!</p>
+        <div class="info-card" [class.active]="selectedPlace">
+            <div class="card-header">
+                <h3>{{ selectedPlace ? 'Place Information' : 'Click on the map' }}</h3>
+                <div class="close-btn" *ngIf="selectedPlace" (click)="clearSelection()">×</div>
+            </div>
+
+            <div class="card-content" *ngIf="!selectedPlace">
+                <div class="welcome-content">
+                    <div class="icon">📍</div>
+                    <p>Click anywhere on the map to discover information about that location</p>
+                    <div class="features">
+                        <div class="feature">
+                            <span class="feature-icon">🏢</span>
+                            <span>Cities & Buildings</span>
+                        </div>
+                        <div class="feature">
+                            <span class="feature-icon">🗺️</span>
+                            <span>Addresses & Coordinates</span>
+                        </div>
+                        <div class="feature">
+                            <span class="feature-icon">🌍</span>
+                            <span>Detailed Location Info</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-content" *ngIf="selectedPlace">
+                <div class="loading" *ngIf="isLoading">
+                    <div class="spinner"></div>
+                    <p>Loading place information...</p>
+                </div>
+
+                <div class="place-info" *ngIf="!isLoading && placeData">
+                    <h4 class="place-name">{{ placeData.display_name }}</h4>
+
+                    <!-- Place Type Section - moved to top for better visibility -->
+                    <div class="info-section" *ngIf="getPlaceType()">
+                        <h5>🏷️ Place Type</h5>
+                        <div class="place-type">
+                            <span class="type-badge">{{ getPlaceType() }}</span>
+                        </div>
+                    </div>
+
+                    <div class="info-sections">
+                        <div class="info-section" *ngIf="placeData.address">
+                            <h5>📍 Address Details</h5>
+                            <div class="address-item"
+                                *ngIf="placeData.address.city || placeData.address.town || placeData.address.village">
+                                <span class="label">City:</span>
+                                <span class="value">{{ placeData.address.city || placeData.address.town ||
+                                    placeData.address.village }}</span>
+                            </div>
+                            <div class="address-item" *ngIf="placeData.address.state">
+                                <span class="label">State:</span>
+                                <span class="value">{{ placeData.address.state }}</span>
+                            </div>
+                            <div class="address-item" *ngIf="placeData.address.country">
+                                <span class="label">Country:</span>
+                                <span class="value">{{ placeData.address.country }}</span>
+                            </div>
+                            <div class="address-item" *ngIf="placeData.address.postcode">
+                                <span class="label">Postal Code:</span>
+                                <span class="value">{{ placeData.address.postcode }}</span>
+                            </div>
+                        </div>
+
+                        <div class="info-section">
+                            <h5>🌐 Coordinates</h5>
+                            <div class="coordinates">
+                                <div class="coord-item">
+                                    <span class="label">Latitude:</span>
+                                    <span class="value">{{ selectedPlace?.lat!.toFixed(6) }}</span>
+                                </div>
+                                <div class="coord-item">
+                                    <span class="label">Longitude:</span>
+                                    <span class="value">{{ selectedPlace?.lon!.toFixed(6) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="error-state" *ngIf="!isLoading && !placeData">
+                    <div class="error-icon">⚠️</div>
+                    <p>Unable to fetch place information</p>
+                    <div class="coordinates">
+                        <p><strong>Coordinates:</strong> {{ selectedPlace?.lat!.toFixed(4) }}, {{
+                            selectedPlace?.lon!.toFixed(4) }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map Container -->
+    <div class="map-container">
+        <div id="map" class="map"></div>
+        <div class="map-overlay">
+            <div class="map-controls">
+                <button class="control-btn" (click)="resetView()" title="Reset View">🏠</button>
+                <button class="control-btn" (click)="clearSelection()" title="Clear Selection"
+                    *ngIf="selectedPlace">✖️</button>
+            </div>
+        </div>
+    </div>
+</div>
