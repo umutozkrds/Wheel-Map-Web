@@ -317,6 +317,119 @@
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
+/* Popup Styles */
+.ol-popup {
+    position: absolute;
+    background-color: white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    padding: 0;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    bottom: 12px;
+    left: -50px;
+    min-width: 280px;
+    max-width: 320px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    animation: popupSlideIn 0.3s ease;
+    z-index: 1000;
+}
+
+@keyframes popupSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ol-popup-closer {
+    text-decoration: none;
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    color: #666;
+    font-size: 20px;
+    font-weight: bold;
+    z-index: 1001;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.ol-popup-closer:hover {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.popup-content {
+    padding: 20px;
+    font-size: 14px;
+}
+
+.popup-title {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 18px;
+    font-weight: 600;
+    border-bottom: 2px solid #667eea;
+    padding-bottom: 8px;
+}
+
+.popup-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.popup-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.popup-item:last-child {
+    border-bottom: none;
+}
+
+.popup-item strong {
+    color: #555;
+    font-weight: 600;
+}
+
+.wheelchair-yes {
+    color: #27ae60;
+    font-weight: 600;
+}
+
+.wheelchair-no {
+    color: #e74c3c;
+    font-weight: 600;
+}
+
+.wheelchair-unknown {
+    color: #f39c12;
+    font-weight: 600;
+}
+
+.coordinates {
+    font-size: 12px;
+    color: #888;
+    background: #f8f9fa;
+    padding: 8px;
+    border-radius: 6px;
+    margin-top: 5px;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .page-container {
@@ -342,6 +455,16 @@
     .control-btn {
         width: 40px;
         height: 40px;
+        font-size: 16px;
+    }
+
+    .ol-popup {
+        min-width: 250px;
+        max-width: 280px;
+        font-size: 13px;
+    }
+
+    .popup-title {
         font-size: 16px;
     }
 }

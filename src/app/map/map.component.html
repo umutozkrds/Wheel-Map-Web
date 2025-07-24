@@ -16,7 +16,7 @@
                 <div class="welcome-content">
                     <div class="icon">📍</div>
                     <p>Click anywhere on the map to discover information about that location</p>
-                    
+
                 </div>
             </div>
 
@@ -76,17 +76,17 @@
                     </div>
                 </div>
 
-               <div class="add-info">
+                <div class="add-info">
                     <form ngForm action="" (ngSubmit)="addPlace(form)" #form="ngForm">
-                        <input type="text" placeholder="Ad" name="ad" value="{{placeData.name}}" ngModel/>
-                        <input type="text" placeholder="Category" name="category" value="{{placeData.type}}" ngModel/>
-                        <input type="text" placeholder="Açıklama" name="aciklama" ngModel required minlength="3"/>
-                        <input type="text" placeholder="Wheelchair" name="wheelchair" ngModel required minlength="3"/>
-                        
+                        <input type="text" placeholder="Ad" name="ad" value="{{placeData.name}}" ngModel />
+                        <input type="text" placeholder="Category" name="category" value="{{placeData.type}}" ngModel />
+                        <input type="text" placeholder="Açıklama" name="aciklama" ngModel required minlength="3" />
+                        <input type="text" placeholder="Wheelchair" name="wheelchair" ngModel required minlength="3" />
+
                         <button [disabled]="form.invalid" type="submit">Add</button>
                     </form>
-               </div>
-                
+                </div>
+
 
                 <div class="error-state" *ngIf="!isLoading && !placeData">
                     <div class="error-icon">⚠️</div>
@@ -103,6 +103,39 @@
     <!-- Map Container -->
     <div class="map-container">
         <div id="map" class="map"></div>
+
+        <!-- Popup Overlay -->
+        <div id="popup" class="ol-popup" *ngIf="showPopup">
+            <a href="#" id="popup-closer" class="ol-popup-closer" (click)="closePopup($event)">×</a>
+            <div id="popup-content" class="popup-content">
+                <div class="popup-inner" *ngIf="popupData">
+                    <h3 class="popup-title">{{ popupData.name }}</h3>
+                    <div class="popup-info">
+                        <div class="popup-item">
+                            <strong>Description:</strong> {{ popupData.description }}
+                        </div>
+                        <div class="popup-item">
+                            <strong>Category:</strong> {{ popupData.category }}
+                        </div>
+                        <div class="popup-item">
+                            <strong>Wheelchair Access:</strong>
+                            <span [ngClass]="{
+                                'wheelchair-yes': popupData.wheelchair === 'yes',
+                                'wheelchair-no': popupData.wheelchair === 'no',
+                                'wheelchair-unknown': popupData.wheelchair === 'unknown'
+                            }">
+                                {{ popupData.wheelchair === 'yes' ? '✓ Yes' :
+                                popupData.wheelchair === 'no' ? '✗ No' : '? Unknown' }}
+                            </span>
+                        </div>
+                        <div class="popup-item coordinates">
+                            <strong>Coordinates:</strong> {{ popupData.lat }}, {{ popupData.lon }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="map-overlay">
             <div class="map-controls">
                 <button class="control-btn" (click)="resetView()" title="Reset View">🏠</button>

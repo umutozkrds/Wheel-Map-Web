@@ -2,9 +2,16 @@ import { AfterViewInit, Component, OnInit } from '@angular/core';
 import Map from 'ol/Map';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
+import VectorLayer from 'ol/layer/Vector';
+import VectorSource from 'ol/source/Vector';
 import OSM from 'ol/source/OSM';
+import { Point } from 'ol/geom';
+import Feature, { FeatureLike } from 'ol/Feature';
+import { Style, Circle, Fill, Stroke } from 'ol/style';
+import Overlay from 'ol/Overlay';
 import { NgForm } from '@angular/forms';
 import { PlacesService } from '../services/places.service';
+import { Place } from '../models/place.model';
 @Component({
   selector: 'app-map',
   standalone: false,
@@ -16,26 +23,35 @@ export class MapComponent implements AfterViewInit {
   selectedPlace: { lat: number, lon: number } | null = null;
   placeData: any = null;
   isLoading: boolean = false;
-  place: any = null;
+  place: Place | null = null;
+  places: Place[] = [];
+  vectorSource: VectorSource = new VectorSource();
+  vectorLayer: VectorLayer<VectorSource> = new VectorLayer({
+    source: this.vectorSource,
+    style: new Style({
+      image: new Circle({
+        radius: 8,
+        fill: new Fill({ color: '#3399CC' }),
+        stroke: new Stroke({ color: '#fff', width: 2 })
+      })
+    })
+  });
+  popup: Overlay | null = null;
+  showPopup: boolean = false;
+  popupData: any = null;
 
   constructor(private placesService: PlacesService) {
 
   }
 
   ngAfterViewInit(): void {
-    console.log('Initializing map...');
 
-    // Use setTimeout to ensure DOM is fully rendered
     setTimeout(() => {
-      // Check if map container exists
       const mapElement = document.getElementById('map');
       if (!mapElement) {
         console.error('Map element with id="map" not found!');
         return;
       }
-
-      console.log('Map element found:', mapElement);
-      console.log('Map element dimensions:', mapElement.offsetWidth, 'x', mapElement.offsetHeight);
 
       try {
         this.map = new Map({
@@ -43,7 +59,8 @@ export class MapComponent implements AfterViewInit {
           layers: [
             new TileLayer({
               source: new OSM()
-            })
+            }),
+            this.vectorLayer
           ],
           view: new View({
             center: [28.978388, 41.009401],
@@ -54,17 +71,80 @@ export class MapComponent implements AfterViewInit {
 
         console.log('Map initialized successfully:', this.map);
 
-        // Force map to render
+        this.initializePopup();
+
         this.map.updateSize();
 
-        // Add click event to show place information in sidebar
         this.map.on('click', (event) => {
-          this.showPlaceInfo(event.coordinate);
+          const feature = this.map!.forEachFeatureAtPixel(event.pixel, (feature) => {
+            return feature;
+          });
+
+          if (feature && feature.get('name')) {
+            this.showStoredPlaceInfo(feature);
+          } else {
+            this.closePopup();
+            this.showPlaceInfo(event.coordinate);
+          }
         });
       } catch (error) {
         console.error('Error initializing map:', error);
       }
     }, 100);
+
+    this.placesService.getPlaces().subscribe((res) => {
+      this.places = res;
+      console.log(this.places);
+      this.addPlacesToMap();
+    });
+  }
+
+  private initializePopup() {
+    const popupElement = document.getElementById('popup');
+    if (popupElement) {
+      this.popup = new Overlay({
+        element: popupElement,
+        autoPan: {
+          animation: {
+            duration: 250,
+          },
+        },
+      });
+
+      this.map!.addOverlay(this.popup);
+    }
+  }
+
+  closePopup(event?: Event) {
+    if (event) {
+      event.preventDefault();
+    }
+    this.showPopup = false;
+    this.popupData = null;
+    if (this.popup) {
+      this.popup.setPosition(undefined);
+    }
+  }
+
+  private showStoredPlaceInfo(feature: FeatureLike) {
+    const coordinates = (feature as any).getGeometry().getCoordinates();
+
+    this.popupData = {
+      name: (feature as any).get('name') || 'Unnamed Place',
+      description: (feature as any).get('description') || 'No description available',
+      wheelchair: (feature as any).get('wheelchair') || 'unknown',
+      category: (feature as any).get('category') || 'general',
+      lat: coordinates[1].toFixed(6),
+      lon: coordinates[0].toFixed(6)
+    };
+
+    this.showPopup = true;
+
+    if (this.popup) {
+      this.popup.setPosition(coordinates);
+    }
+
+    console.log('Showing popup for place:', this.popupData.name);
   }
 
   private async showPlaceInfo(coordinate: number[]) {
@@ -75,7 +155,6 @@ export class MapComponent implements AfterViewInit {
     this.placeData = null;
 
     try {
-      // Use Nominatim reverse geocoding to get place information
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`
       );
@@ -89,12 +168,39 @@ export class MapComponent implements AfterViewInit {
       this.isLoading = false;
       this.placeData = null;
     }
+
+
+  }
+
+  addPlacesToMap() {
+    this.vectorSource.clear();
+
+    this.places.forEach(place => {
+      if (place.lat && place.lon) {
+        const point = new Point([place.lon, place.lat]);
+
+        const feature = new Feature({
+          geometry: point,
+          id: place.id,
+          name: place.ad,
+          description: place.aciklama,
+          wheelchair: place.wheelchair,
+          category: place.category
+        });
+
+        // Add feature to vector source
+        this.vectorSource.addFeature(feature);
+      }
+    });
+
+    console.log(`Added ${this.places.length} places to map`);
   }
 
   clearSelection() {
     this.selectedPlace = null;
     this.placeData = null;
     this.isLoading = false;
+    this.closePopup();
   }
 
   resetView() {
@@ -110,15 +216,12 @@ export class MapComponent implements AfterViewInit {
   getPlaceType(): string | null {
     if (!this.placeData) return null;
 
-    // Check multiple possible fields for place type
     if (this.placeData.type) return this.placeData.type;
     if (this.placeData.class) return this.placeData.class;
     if (this.placeData.category) return this.placeData.category;
 
-    // Extract from addresstype if available
     if (this.placeData.addresstype) return this.placeData.addresstype;
 
-    // Extract from OSM type if available
     if (this.placeData.osm_type) {
       switch (this.placeData.osm_type) {
         case 'way': return 'Area/Building';
@@ -133,14 +236,12 @@ export class MapComponent implements AfterViewInit {
 
 
   addPlace(form: NgForm) {
-    // Check if we have selected place data
     if (!this.selectedPlace || !this.placeData) {
       console.error('No place selected or place data missing');
       alert('Please select a place on the map first');
       return;
     }
 
-    // Get category with fallback
     const category = this.placeData.type || this.placeData.class || this.placeData.category || 'unknown';
 
     this.place = {
@@ -158,7 +259,10 @@ export class MapComponent implements AfterViewInit {
       next: (res) => {
         console.log('Place added successfully:', res);
         alert('Place added successfully!');
-        // Clear the form and selection
+        this.placesService.getPlaces().subscribe((updatedPlaces) => {
+          this.places = updatedPlaces;
+          this.addPlacesToMap();
+        });
         this.clearSelection();
         form.resetForm();
       },
