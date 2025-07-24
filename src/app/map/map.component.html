@@ -65,11 +65,11 @@
                             <div class="coordinates">
                                 <div class="coord-item">
                                     <span class="label">Latitude:</span>
-                                    <span class="value">{{ selectedPlace?.lat!.toFixed(6) }}</span>
+                                    <span class="value">{{ selectedPlace.lat!.toFixed(6) }}</span>
                                 </div>
                                 <div class="coord-item">
                                     <span class="label">Longitude:</span>
-                                    <span class="value">{{ selectedPlace?.lon!.toFixed(6) }}</span>
+                                    <span class="value">{{ selectedPlace.lon!.toFixed(6) }}</span>
                                 </div>
                             </div>
                         </div>
@@ -81,7 +81,7 @@
                         <input type="text" placeholder="Ad" name="ad" value="{{placeData.name}}" ngModel />
                         <input type="text" placeholder="Category" name="category" value="{{placeData.type}}" ngModel />
                         <input type="text" placeholder="Açıklama" name="aciklama" ngModel required minlength="3" />
-                        <input type="text" placeholder="Wheelchair" name="wheelchair" ngModel required minlength="3" />
+                        <input type="text" placeholder="Wheelchair" name="wheelchair" ngModel required minlength="2" />
 
                         <button [disabled]="form.invalid" type="submit">Add</button>
                     </form>
@@ -92,8 +92,8 @@
                     <div class="error-icon">⚠️</div>
                     <p>Unable to fetch place information</p>
                     <div class="coordinates">
-                        <p><strong>Coordinates:</strong> {{ selectedPlace?.lat!.toFixed(4) }}, {{
-                            selectedPlace?.lon!.toFixed(4) }}</p>
+                        <p><strong>Coordinates:</strong> {{ selectedPlace.lat!.toFixed(4) }}, {{
+                            selectedPlace.lon!.toFixed(4) }}</p>
                     </div>
                 </div>
             </div>

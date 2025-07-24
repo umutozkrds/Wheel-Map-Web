@@ -7,7 +7,7 @@ import VectorSource from 'ol/source/Vector';
 import OSM from 'ol/source/OSM';
 import { Point } from 'ol/geom';
 import Feature, { FeatureLike } from 'ol/Feature';
-import { Style, Circle, Fill, Stroke } from 'ol/style';
+import { Style, Circle, Fill, Stroke, Icon } from 'ol/style';
 import Overlay from 'ol/Overlay';
 import { NgForm } from '@angular/forms';
 import { PlacesService } from '../services/places.service';
@@ -172,6 +172,30 @@ export class MapComponent implements AfterViewInit {
 
   }
 
+  private getIconForCategory(category: string): string | null {
+    switch (category?.toLowerCase()) {
+      case 'museum':
+        return 'images/museum.png';
+      case 'gift':
+        return 'images/gift.png';
+      case 'library':
+        return 'images/library.png';
+      default:
+        return null; // Will use default circle style
+    }
+  }
+
+  private getCategoryColor(category: string): string {
+    switch (category?.toLowerCase()) {
+      case 'restaurant': return '#e74c3c';
+      case 'shop': return '#f39c12';
+      case 'park': return '#27ae60';
+      case 'hospital': return '#e67e22';
+      case 'school': return '#9b59b6';
+      default: return '#3399CC';
+    }
+  }
+
   addPlacesToMap() {
     this.vectorSource.clear();
 
@@ -188,12 +212,58 @@ export class MapComponent implements AfterViewInit {
           category: place.category
         });
 
-        // Add feature to vector source
+        // Get icon URL for this place's category
+        const iconUrl = this.getIconForCategory(place.category);
+
+        if (iconUrl) {
+          console.log(`Setting icon for ${place.ad}: ${iconUrl}`);
+          // Set custom icon style
+          const iconStyle = new Style({
+            image: new Icon({
+              anchor: [0.5, 1],
+              src: iconUrl,
+              scale: 0.05, // Good visible size
+              anchorXUnits: 'fraction',
+              anchorYUnits: 'fraction'
+            })
+          });
+          feature.setStyle(iconStyle);
+
+          // Add error handling for icon loading
+          const iconImage = new Image();
+          iconImage.onload = () => {
+            console.log(`Icon loaded successfully: ${iconUrl}`);
+          };
+          iconImage.onerror = () => {
+            console.error(`Failed to load icon: ${iconUrl}`);
+            // Fallback to circle if icon fails to load
+            feature.setStyle(new Style({
+              image: new Circle({
+                radius: 12,
+                fill: new Fill({ color: '#ff6b6b' }),
+                stroke: new Stroke({ color: '#fff', width: 2 })
+              })
+            }));
+          };
+          iconImage.src = iconUrl;
+        } else {
+          // Use default circle style for unknown categories
+          feature.setStyle(new Style({
+            image: new Circle({
+              radius: 10,
+              fill: new Fill({
+                color: this.getCategoryColor(place.category)
+              }),
+              stroke: new Stroke({ color: '#fff', width: 2 })
+            })
+          }));
+        }
+
         this.vectorSource.addFeature(feature);
       }
     });
 
-    console.log(`Added ${this.places.length} places to map`);
+    console.log(`Added ${this.places.length} places to map with icons`);
   }
 
   clearSelection() {
