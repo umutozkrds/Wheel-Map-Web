@@ -3,8 +3,6 @@ import Map from 'ol/Map';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
-import TileWMS from 'ol/source/TileWMS';
-import { transform } from 'ol/proj';
 
 @Component({
   selector: 'app-map',
@@ -46,9 +44,9 @@ export class MapComponent implements AfterViewInit {
             })
           ],
           view: new View({
-            center: [35.0, 39.0], // Turkey center coordinates (lon, lat)
-            zoom: 6, // Good zoom level to see all of Turkey
-            projection: 'EPSG:4326' // Lat-Lon ile çalışmak için
+            center: [35.0, 39.0],
+            zoom: 6, //
+            projection: 'EPSG:4326'
           })
         });
 
