@@ -27,7 +27,7 @@
                 </div>
 
                 <div class="place-info" *ngIf="!isLoading && placeData">
-                    <h4 class="place-name">{{ placeData.display_name }}</h4>
+                    <h4 class="place-name">{{ placeData.name }}</h4>
 
                     <!-- Place Type Section - moved to top for better visibility -->
                     <div class="info-section" *ngIf="getPlaceType()">
@@ -75,6 +75,18 @@
                         </div>
                     </div>
                 </div>
+
+               <div class="add-info">
+                    <form ngForm action="" (ngSubmit)="addPlace(form)" #form="ngForm">
+                        <input type="text" placeholder="Ad" name="ad" value="{{placeData.name}}" ngModel/>
+                        <input type="text" placeholder="Category" name="category" value="{{placeData.type}}" ngModel/>
+                        <input type="text" placeholder="Açıklama" name="aciklama" ngModel required minlength="3"/>
+                        <input type="text" placeholder="Wheelchair" name="wheelchair" ngModel required minlength="3"/>
+                        
+                        <button [disabled]="form.invalid" type="submit">Add</button>
+                    </form>
+               </div>
+                
 
                 <div class="error-state" *ngIf="!isLoading && !placeData">
                     <div class="error-icon">⚠️</div>

@@ -3,7 +3,8 @@ import Map from 'ol/Map';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
-
+import { NgForm } from '@angular/forms';
+import { PlacesService } from '../services/places.service';
 @Component({
   selector: 'app-map',
   standalone: false,
@@ -15,8 +16,9 @@ export class MapComponent implements AfterViewInit {
   selectedPlace: { lat: number, lon: number } | null = null;
   placeData: any = null;
   isLoading: boolean = false;
+  place: any = null;
 
-  constructor() {
+  constructor(private placesService: PlacesService) {
 
   }
 
@@ -44,8 +46,8 @@ export class MapComponent implements AfterViewInit {
             })
           ],
           view: new View({
-            center: [35.0, 39.0],
-            zoom: 6, //
+            center: [28.978388, 41.009401],
+            zoom: 18, //
             projection: 'EPSG:4326'
           })
         });
@@ -128,4 +130,44 @@ export class MapComponent implements AfterViewInit {
 
     return null;
   }
+
+
+  addPlace(form: NgForm) {
+    // Check if we have selected place data
+    if (!this.selectedPlace || !this.placeData) {
+      console.error('No place selected or place data missing');
+      alert('Please select a place on the map first');
+      return;
+    }
+
+    // Get category with fallback
+    const category = this.placeData.type || this.placeData.class || this.placeData.category || 'unknown';
+
+    this.place = {
+      ad: this.placeData.name || 'Unnamed Place',
+      aciklama: form.value.aciklama || '',
+      wheelchair: form.value.wheelchair || 'unknown',
+      lat: this.selectedPlace.lat,
+      lon: this.selectedPlace.lon,
+      category: category
+    }
+
+    console.log('Sending place data:', this.place);
+
+    this.placesService.postPlace(this.place).subscribe({
+      next: (res) => {
+        console.log('Place added successfully:', res);
+        alert('Place added successfully!');
+        // Clear the form and selection
+        this.clearSelection();
+        form.resetForm();
+      },
+      error: (error) => {
+        console.error('Error adding place:', error);
+        alert('Error adding place: ' + (error.error?.error || error.message || 'Unknown error'));
+      }
+    });
+  }
+
+
 }
