@@ -1,9 +1,15 @@
 <div class="page-container">
     <!-- Left Sidebar -->
     <div class="sidebar">
-        <div class="sidebar-header">
-            <h1>Wheel Map</h1>
-            <p class="subtitle">Explore Turkey & Discover Places</p>
+        <div class="categories">
+            <div class="category">
+                <select name="category" id="category" (change)="getPlacesByCategory($event)">
+                    <option value="">Select a category</option>
+                    <option value="all">All Categories</option>
+                    <option *ngFor="let category of categories" value="{{ category.category }}">{{ category.category }}
+                    </option>
+                </select>
+            </div>
         </div>
 
         <div class="info-card" [class.active]="selectedPlace">

@@ -37,6 +37,30 @@ app.get('/api/places', async (req, res) => {
     }
 });
 
+app.get("/api/places/:category", async (req, res) => {
+    const { category } = req.params;
+    const { rows } = await pool.query(`
+        SELECT 
+                id,
+                ad,
+                aciklama,
+                wheelchair,
+                category,
+                ST_Y(geometry) as lat,
+                ST_X(geometry) as lon,
+                ST_AsText(geometry) as geometry_text
+            FROM mekanlar WHERE category = $1
+    `, [category]);
+    res.json(rows);
+});
+
+app.get("/api/categories", async (req, res) => {
+    const { rows } = await pool.query(`
+        SELECT DISTINCT category FROM mekanlar
+    `);
+    res.json(rows);
+});
+
 app.post('/api/places', async (req, res) => {
     try {
         const { ad, aciklama, wheelchair, lat, lon, category } = req.body;

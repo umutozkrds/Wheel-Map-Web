@@ -16,4 +16,12 @@ export class PlacesService {
     getPlaces() {
         return this.http.get<Place[]>('http://localhost:3000/api/places')
     }
+
+    getPlacesByCategory(category: string) {
+        return this.http.get<Place[]>(`http://localhost:3000/api/places/${category}`);
+    }
+
+    getCategories() {
+        return this.http.get<any[]>('http://localhost:3000/api/categories');
+    }
 }

@@ -1,4 +1,5 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import Map from 'ol/Map';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
@@ -24,6 +25,8 @@ export class MapComponent implements AfterViewInit {
   selectedPlace: { lat: number, lon: number } | null = null;
   placeData: any = null;
   isLoading: boolean = false;
+  filteredPlaces: Place[] = [];
+  categories: any[] = [];
   place: Place | null = null;
   places: Place[] = [];
   vectorSource: VectorSource = new VectorSource();
@@ -41,15 +44,23 @@ export class MapComponent implements AfterViewInit {
   showPopup: boolean = false;
   popupData: any = null;
   isSubmitting: boolean = false;
-  minZoomForIcons: number = 14; // Minimum zoom level to show icons
+  minZoomForIcons: number = 10; // Minimum zoom level to show icons  
   currentZoom: number = 12;
   showZoomMessage: boolean = false;
 
-  constructor(private placesService: PlacesService) {
+
+  constructor(
+    private placesService: PlacesService,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
 
   }
 
   ngAfterViewInit(): void {
+    // Only run map initialization in browser
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
 
     setTimeout(() => {
       const mapElement = document.getElementById('map');
@@ -109,12 +120,39 @@ export class MapComponent implements AfterViewInit {
 
     this.placesService.getPlaces().subscribe((res) => {
       this.places = res;
-      console.log(this.places);
       this.addPlacesToMap();
+    });
+
+    this.placesService.getCategories().subscribe((res) => {
+      this.categories = res;
     });
   }
 
+  getPlacesByCategory(event: any) {
+    const selectedCategory = event.target.value;
+
+    if (selectedCategory === 'all') {
+      // Show all places
+      this.placesService.getPlaces().subscribe((res) => {
+        this.places = res;
+        this.addPlacesToMap();
+      });
+    } else if (selectedCategory !== '') {
+      this.placesService.getPlacesByCategory(selectedCategory).subscribe((res) => {
+        this.places = res;
+        this.addPlacesToMap();
+      });
+    } else {
+      this.places = [];
+      this.addPlacesToMap();
+    }
+  }
+
   private initializePopup() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     const popupElement = document.getElementById('popup');
     if (popupElement) {
       this.popup = new Overlay({
@@ -159,7 +197,6 @@ export class MapComponent implements AfterViewInit {
       this.popup.setPosition(coordinates);
     }
 
-    console.log('Showing popup for place:', this.popupData.name);
   }
 
   private async showPlaceInfo(coordinate: number[]) {
@@ -212,22 +249,22 @@ export class MapComponent implements AfterViewInit {
   }
 
   updateIconVisibility() {
-    const shouldShowIcons = this.currentZoom >= this.minZoomForIcons;
+    if (!isPlatformBrowser(this.platformId) || !this.map) {
+      return;
+    }
 
+    const shouldShowIcons = this.currentZoom >= this.minZoomForIcons;
     if (shouldShowIcons) {
       this.vectorLayer.setVisible(true);
       this.showZoomMessage = false;
-      console.log(`Zoom level ${this.currentZoom}: Icons visible`);
     } else {
       this.vectorLayer.setVisible(false);
       this.showZoomMessage = true;
-      console.log(`Zoom level ${this.currentZoom}: Icons hidden (need zoom level ${this.minZoomForIcons} or higher)`);
     }
   }
 
   addPlacesToMap() {
     this.vectorSource.clear();
-
     this.places.forEach(place => {
       if (place.lat && place.lon) {
         const point = new Point([place.lon, place.lat]);
@@ -240,43 +277,35 @@ export class MapComponent implements AfterViewInit {
           wheelchair: place.wheelchair,
           category: place.category
         });
-
-        // Get icon URL for this place's category
         const iconUrl = this.getIconForCategory(place.category);
-
         if (iconUrl) {
-          console.log(`Setting icon for ${place.ad}: ${iconUrl}`);
-          // Set custom icon style
           const iconStyle = new Style({
             image: new Icon({
               anchor: [0.5, 1],
               src: iconUrl,
-              scale: 0.05, // Good visible size
+              scale: 0.07, // Good visible size
               anchorXUnits: 'fraction',
               anchorYUnits: 'fraction'
             })
           });
           feature.setStyle(iconStyle);
 
-          // Add error handling for icon loading
-          const iconImage = new Image();
-          iconImage.onload = () => {
-            console.log(`Icon loaded successfully: ${iconUrl}`);
-          };
-          iconImage.onerror = () => {
-            console.error(`Failed to load icon: ${iconUrl}`);
-            // Fallback to circle if icon fails to load
-            feature.setStyle(new Style({
-              image: new Circle({
-                radius: 12,
-                fill: new Fill({ color: '#ff6b6b' }),
-                stroke: new Stroke({ color: '#fff', width: 2 })
-              })
-            }));
-          };
-          iconImage.src = iconUrl;
+          if (typeof Image !== 'undefined') {
+            const iconImage = new Image();
+            iconImage.onload = () => {
+            };
+            iconImage.onerror = () => {
+              feature.setStyle(new Style({
+                image: new Circle({
+                  radius: 12,
+                  fill: new Fill({ color: '#ff6b6b' }),
+                  stroke: new Stroke({ color: '#fff', width: 2 })
+                })
+              }));
+            };
+            iconImage.src = iconUrl;
+          }
         } else {
-          // Use default circle style for unknown categories
           feature.setStyle(new Style({
             image: new Circle({
               radius: 10,
@@ -292,7 +321,9 @@ export class MapComponent implements AfterViewInit {
       }
     });
 
-    console.log(`Added ${this.places.length} places to map with icons`);
+
+    // Ensure vector layer is visible after adding filtered places
+    this.vectorLayer.setVisible(true);
 
     // Apply initial visibility based on current zoom
     this.updateIconVisibility();
@@ -306,13 +337,15 @@ export class MapComponent implements AfterViewInit {
   }
 
   resetView() {
-    if (this.map) {
-      this.map.getView().animate({
-        center: [35.0, 39.0],
-        zoom: 6,
-        duration: 1000
-      });
+    if (!isPlatformBrowser(this.platformId) || !this.map) {
+      return;
     }
+
+    this.map.getView().animate({
+      center: [35.0, 39.0],
+      zoom: 6,
+      duration: 1000
+    });
   }
 
   getPlaceType(): string | null {
@@ -339,7 +372,6 @@ export class MapComponent implements AfterViewInit {
 
   addPlace(form: NgForm) {
     if (!this.selectedPlace || !this.placeData) {
-      console.error('No place selected or place data missing');
       alert('Please select a place on the map first');
       return;
     }
@@ -361,11 +393,8 @@ export class MapComponent implements AfterViewInit {
       category: category
     }
 
-    console.log('Sending place data:', this.place);
-
     this.placesService.postPlace(this.place).subscribe({
       next: (res) => {
-        console.log('Place added successfully:', res);
         alert('Place added successfully! 🎉\nThank you for your contribution to making locations more accessible.');
         this.placesService.getPlaces().subscribe((updatedPlaces) => {
           this.places = updatedPlaces;
@@ -376,7 +405,6 @@ export class MapComponent implements AfterViewInit {
         form.resetForm();
       },
       error: (error) => {
-        console.error('Error adding place:', error);
         alert('Error adding place: ' + (error.error?.error || error.message || 'Unknown error'));
         this.isSubmitting = false;
       }
@@ -384,6 +412,10 @@ export class MapComponent implements AfterViewInit {
   }
 
   getCurrentLocation() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
         const locationFeature = new Feature({
