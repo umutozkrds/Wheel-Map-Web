@@ -317,6 +317,60 @@
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
+/* Zoom Message Styles */
+.zoom-message {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+    animation: slideInLeft 0.3s ease;
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.zoom-message-content {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border: 1px solid #e1e5e9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-width: 200px;
+}
+
+.zoom-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+.zoom-message-content p {
+    margin: 0 0 5px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.zoom-message-content small {
+    margin: 0;
+    font-size: 12px;
+    color: #7f8c8d;
+    font-weight: 500;
+}
+
 /* Popup Styles */
 .ol-popup {
     position: absolute;
@@ -466,5 +520,353 @@
 
     .popup-title {
         font-size: 16px;
+    }
+}
+
+/* Add Info Form Styles */
+.add-info {
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 2px solid #e9ecef;
+    animation: slideInUp 0.4s ease;
+}
+
+.add-info form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.form-header h4 {
+    margin: 0 0 8px 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.form-header p {
+    margin: 0;
+    font-size: 14px;
+    color: #7f8c8d;
+    font-weight: 400;
+}
+
+.form-group {
+    position: relative;
+    margin-bottom: 4px;
+}
+
+.form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #34495e;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e1e5e9;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: inherit;
+    background: #ffffff;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.form-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    background: #fafbfc;
+}
+
+.form-input:hover {
+    border-color: #bdc3c7;
+}
+
+.form-input.ng-invalid.ng-touched {
+    border-color: #e74c3c;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+}
+
+.form-input.ng-valid.ng-touched {
+    border-color: #27ae60;
+    box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+}
+
+.form-input::placeholder {
+    color: #95a5a6;
+    font-weight: 400;
+}
+
+.wheelchair-select {
+    position: relative;
+}
+
+.wheelchair-select select {
+    width: 100%;
+    padding: 14px 45px 14px 16px;
+    border: 2px solid #e1e5e9;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: inherit;
+    background: #ffffff url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>') no-repeat right 16px center;
+    background-size: 12px;
+    appearance: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.wheelchair-select select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    background-color: #fafbfc;
+}
+
+.wheelchair-select select:hover {
+    border-color: #bdc3c7;
+}
+
+.wheelchair-select select.ng-invalid.ng-touched {
+    border-color: #e74c3c;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+}
+
+.wheelchair-select select.ng-valid.ng-touched {
+    border-color: #27ae60;
+    box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+}
+
+.form-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 14px 16px;
+    border: 2px solid #e1e5e9;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: inherit;
+    background: #ffffff;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    outline: none;
+    resize: vertical;
+}
+
+.form-textarea:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    background: #fafbfc;
+}
+
+.form-textarea:hover {
+    border-color: #bdc3c7;
+}
+
+.form-textarea.ng-invalid.ng-touched {
+    border-color: #e74c3c;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+}
+
+.form-textarea.ng-valid.ng-touched {
+    border-color: #27ae60;
+    box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+}
+
+.form-textarea::placeholder {
+    color: #95a5a6;
+    font-weight: 400;
+}
+
+.form-error {
+    color: #e74c3c;
+    font-size: 12px;
+    margin-top: 6px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.form-error::before {
+    content: "⚠";
+    font-size: 14px;
+}
+
+.form-success {
+    color: #27ae60;
+    font-size: 12px;
+    margin-top: 6px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.form-success::before {
+    content: "✓";
+    font-size: 14px;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 16px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.submit-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.submit-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.submit-btn:disabled {
+    background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.submit-btn:disabled::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-loading {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: btn-spin 1s ease-in-out infinite;
+}
+
+@keyframes btn-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.form-footer {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #ecf0f1;
+}
+
+.form-footer p {
+    margin: 0;
+    font-size: 12px;
+    color: #95a5a6;
+    line-height: 1.4;
+}
+
+.required-indicator {
+    color: #e74c3c;
+    margin-left: 2px;
+}
+
+/* Accessibility improvements */
+.form-input:focus-visible,
+.wheelchair-select select:focus-visible,
+.form-textarea:focus-visible,
+.submit-btn:focus-visible {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* Mobile responsive adjustments for form */
+@media (max-width: 768px) {
+    .add-info {
+        margin-top: 20px;
+        padding-top: 20px;
+    }
+
+    .form-header h4 {
+        font-size: 18px;
+    }
+
+    .form-input,
+    .wheelchair-select select,
+    .form-textarea {
+        padding: 12px 14px;
+        font-size: 14px;
+    }
+
+    .submit-btn {
+        padding: 14px 20px;
+        font-size: 15px;
+    }
+
+    .form-group {
+        margin-bottom: 2px;
+    }
+
+    /* Mobile zoom message adjustments */
+    .zoom-message {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+    }
+
+    .zoom-message-content {
+        padding: 12px 15px;
+        min-width: auto;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .zoom-icon {
+        font-size: 24px;
+        margin-bottom: 6px;
+    }
+
+    .zoom-message-content p {
+        font-size: 13px;
+    }
+
+    .zoom-message-content small {
+        font-size: 11px;
     }
 }

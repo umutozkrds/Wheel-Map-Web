@@ -77,13 +77,84 @@
                 </div>
 
                 <div class="add-info">
-                    <form ngForm action="" (ngSubmit)="addPlace(form)" #form="ngForm">
-                        <input type="text" placeholder="Ad" name="ad" value="{{placeData.name}}" ngModel />
-                        <input type="text" placeholder="Category" name="category" value="{{placeData.type}}" ngModel />
-                        <input type="text" placeholder="Açıklama" name="aciklama" ngModel required minlength="3" />
-                        <input type="text" placeholder="Wheelchair" name="wheelchair" ngModel required minlength="2" />
+                    <div class="form-header">
+                        <h4>📝 Add Place Information</h4>
+                        <p>Share details about this location to help others</p>
+                    </div>
 
-                        <button [disabled]="form.invalid" type="submit">Add</button>
+                    <form ngForm action="" (ngSubmit)="addPlace(form)" #form="ngForm">
+                        <div class="form-group">
+                            <label class="form-label" for="placeName">Place Name <span
+                                    class="required-indicator">*</span></label>
+                            <input type="text" id="placeName" class="form-input" placeholder="Enter place name"
+                                name="ad" [value]="placeData.name" ngModel required minlength="2" #adInput="ngModel" />
+                            <div class="form-error" *ngIf="adInput.invalid && adInput.touched">
+                                Please enter a valid place name (at least 2 characters)
+                            </div>
+                            <div class="form-success" *ngIf="adInput.valid && adInput.touched">
+                                Great! Place name looks good
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="category">Category</label>
+                            <input type="text" id="category" class="form-input"
+                                placeholder="e.g., Restaurant, Hospital, Park" name="category" [value]="placeData.type"
+                                ngModel #categoryInput="ngModel" />
+                            <div class="form-success" *ngIf="categoryInput.valid && categoryInput.touched">
+                                Category added successfully
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="description">Description <span
+                                    class="required-indicator">*</span></label>
+                            <textarea id="description" class="form-textarea"
+                                placeholder="Describe this place, its features, services, or any helpful information for visitors..."
+                                name="aciklama" ngModel required minlength="10" maxlength="500"
+                                #descriptionInput="ngModel"></textarea>
+                            <div class="form-error" *ngIf="descriptionInput.invalid && descriptionInput.touched">
+                                <span *ngIf="descriptionInput.errors?.['required']">Description is required</span>
+                                <span *ngIf="descriptionInput.errors?.['minlength']">Description must be at least 10
+                                    characters</span>
+                            </div>
+                            <div class="form-success" *ngIf="descriptionInput.valid && descriptionInput.touched">
+                                Perfect! Description is detailed and helpful
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="wheelchair">Wheelchair Accessibility <span
+                                    class="required-indicator">*</span></label>
+                            <div class="wheelchair-select">
+                                <select id="wheelchair" name="wheelchair" ngModel required #wheelchairInput="ngModel">
+                                    <option value="" disabled>Select accessibility level</option>
+                                    <option value="yes">✅ Fully Accessible</option>
+                                    <option value="limited">🟡 Limited Access</option>
+                                    <option value="no">❌ Not Accessible</option>
+                                    <option value="unknown">❓ Unknown</option>
+                                </select>
+                            </div>
+                            <div class="form-error" *ngIf="wheelchairInput.invalid && wheelchairInput.touched">
+                                Please select the wheelchair accessibility level
+                            </div>
+                            <div class="form-success" *ngIf="wheelchairInput.valid && wheelchairInput.touched">
+                                Thank you for providing accessibility information
+                            </div>
+                        </div>
+
+                        <button type="submit" class="submit-btn" [disabled]="form.invalid || isSubmitting"
+                            [class.btn-loading]="isSubmitting">
+                            <span *ngIf="!isSubmitting">🚀 Add Place</span>
+                            <span *ngIf="isSubmitting" class="btn-loading">
+                                <div class="btn-spinner"></div>
+                                Adding Place...
+                            </span>
+                        </button>
+
+                        <div class="form-footer">
+                            <p>Your contribution helps make locations more accessible for everyone. Thank you! 🙏</p>
+                        </div>
                     </form>
                 </div>
 
@@ -139,6 +210,7 @@
         <div class="map-overlay">
             <div class="map-controls">
                 <button class="control-btn" (click)="resetView()" title="Reset View">🏠</button>
+                <button class="control-btn" (click)="getCurrentLocation()" title="Current Location">🌍</button>
                 <button class="control-btn" (click)="clearSelection()" title="Clear Selection"
                     *ngIf="selectedPlace">✖️</button>
             </div>

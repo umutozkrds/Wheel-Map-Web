@@ -12,6 +12,7 @@ import Overlay from 'ol/Overlay';
 import { NgForm } from '@angular/forms';
 import { PlacesService } from '../services/places.service';
 import { Place } from '../models/place.model';
+import { zoomByDelta } from 'ol/interaction/Interaction';
 @Component({
   selector: 'app-map',
   standalone: false,
@@ -39,6 +40,10 @@ export class MapComponent implements AfterViewInit {
   popup: Overlay | null = null;
   showPopup: boolean = false;
   popupData: any = null;
+  isSubmitting: boolean = false;
+  minZoomForIcons: number = 14; // Minimum zoom level to show icons
+  currentZoom: number = 12;
+  showZoomMessage: boolean = false;
 
   constructor(private placesService: PlacesService) {
 
@@ -64,7 +69,7 @@ export class MapComponent implements AfterViewInit {
           ],
           view: new View({
             center: [28.978388, 41.009401],
-            zoom: 18, //
+            zoom: 12, // Start at lower zoom to demonstrate icon visibility feature
             projection: 'EPSG:4326'
           })
         });
@@ -74,6 +79,16 @@ export class MapComponent implements AfterViewInit {
         this.initializePopup();
 
         this.map.updateSize();
+
+        // Initialize current zoom level
+        this.currentZoom = this.map.getView().getZoom() || 12;
+
+        // Add zoom change listener
+        this.map.getView().on('change:resolution', () => {
+          const newZoom = this.map!.getView().getZoom() || 0;
+          this.currentZoom = newZoom;
+          this.updateIconVisibility();
+        });
 
         this.map.on('click', (event) => {
           const feature = this.map!.forEachFeatureAtPixel(event.pixel, (feature) => {
@@ -196,6 +211,20 @@ export class MapComponent implements AfterViewInit {
     }
   }
 
+  updateIconVisibility() {
+    const shouldShowIcons = this.currentZoom >= this.minZoomForIcons;
+
+    if (shouldShowIcons) {
+      this.vectorLayer.setVisible(true);
+      this.showZoomMessage = false;
+      console.log(`Zoom level ${this.currentZoom}: Icons visible`);
+    } else {
+      this.vectorLayer.setVisible(false);
+      this.showZoomMessage = true;
+      console.log(`Zoom level ${this.currentZoom}: Icons hidden (need zoom level ${this.minZoomForIcons} or higher)`);
+    }
+  }
+
   addPlacesToMap() {
     this.vectorSource.clear();
 
@@ -264,6 +293,9 @@ export class MapComponent implements AfterViewInit {
     });
 
     console.log(`Added ${this.places.length} places to map with icons`);
+
+    // Apply initial visibility based on current zoom
+    this.updateIconVisibility();
   }
 
   clearSelection() {
@@ -312,10 +344,16 @@ export class MapComponent implements AfterViewInit {
       return;
     }
 
-    const category = this.placeData.type || this.placeData.class || this.placeData.category || 'unknown';
+    if (this.isSubmitting) {
+      return; // Prevent double submission
+    }
+
+    this.isSubmitting = true;
+
+    const category = this.placeData.type || this.placeData.class || this.placeData.category || form.value.category || 'unknown';
 
     this.place = {
-      ad: this.placeData.name || 'Unnamed Place',
+      ad: form.value.ad || this.placeData.name || 'Unnamed Place',
       aciklama: form.value.aciklama || '',
       wheelchair: form.value.wheelchair || 'unknown',
       lat: this.selectedPlace.lat,
@@ -328,10 +366,11 @@ export class MapComponent implements AfterViewInit {
     this.placesService.postPlace(this.place).subscribe({
       next: (res) => {
         console.log('Place added successfully:', res);
-        alert('Place added successfully!');
+        alert('Place added successfully! 🎉\nThank you for your contribution to making locations more accessible.');
         this.placesService.getPlaces().subscribe((updatedPlaces) => {
           this.places = updatedPlaces;
           this.addPlacesToMap();
+          this.isSubmitting = false;
         });
         this.clearSelection();
         form.resetForm();
@@ -339,8 +378,25 @@ export class MapComponent implements AfterViewInit {
       error: (error) => {
         console.error('Error adding place:', error);
         alert('Error adding place: ' + (error.error?.error || error.message || 'Unknown error'));
+        this.isSubmitting = false;
       }
     });
+  }
+
+  getCurrentLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const locationFeature = new Feature({
+          geometry: new Point([position.coords.longitude, position.coords.latitude]),
+        });
+        this.vectorSource.addFeature(locationFeature);
+        this.map!.getView().animate({
+          center: [position.coords.longitude, position.coords.latitude],
+          zoom: 18,
+          duration: 1000
+        });
+      });
+    }
   }
 
 
