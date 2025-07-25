@@ -1,0 +1,32 @@
+/* App Layout with Fixed Navbar */
+.main-content {
+    margin-top: 76px;
+    /* Height of navbar */
+    min-height: calc(100vh - 76px);
+    transition: margin-top 0.3s ease;
+}
+
+/* Ensure smooth integration */
+* {
+    box-sizing: border-box;
+}
+
+/* Handle navbar scroll effects */
+@media (max-width: 991.98px) {
+    .main-content {
+        margin-top: 70px;
+        /* Slightly less for mobile */
+    }
+}
+
+/* Global font smoothing */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Fix any potential z-index issues */
+.main-content {
+    position: relative;
+    z-index: 1;
+}

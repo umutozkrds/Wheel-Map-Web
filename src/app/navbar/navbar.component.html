@@ -1,0 +1,64 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top shadow-lg">
+    <div class="container-fluid">
+        <!-- Brand -->
+        <a class="navbar-brand fw-bold" href="#">
+            <i class="fas fa-wheelchair me-2"></i>
+            <span class="brand-text">Wheel Map</span>
+        </a>
+
+        <!-- Mobile toggle button -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navigation items -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#" (click)="setActiveSection('map')">
+                        <i class="fas fa-map-marked-alt me-1"></i>
+                        Map
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" (click)="setActiveSection('places')">
+                        <i class="fas fa-map-pin me-1"></i>
+                        Places
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" (click)="setActiveSection('about')">
+                        <i class="fas fa-info-circle me-1"></i>
+                        About
+                    </a>
+                </li>
+            </ul>
+                <!-- User actions -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <i class="fas fa-user-circle me-1"></i>
+                        Menu
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#" (click)="contributePlace()">
+                                <i class="fas fa-plus-circle me-2"></i>Add Place
+                            </a></li>
+                        <li><a class="dropdown-item" href="#" (click)="reportIssue()">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Report Issue
+                            </a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="#" (click)="showHelp()">
+                                <i class="fas fa-question-circle me-2"></i>Help & Tutorial
+                            </a></li>
+                        <li><a class="dropdown-item" href="#" (click)="showSettings()">
+                                <i class="fas fa-cog me-2"></i>Settings
+                            </a></li>
+                    </ul>
+                </div>
+        </div>
+    </div>
+</nav>

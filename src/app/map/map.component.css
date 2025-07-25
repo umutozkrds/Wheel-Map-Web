@@ -1,7 +1,8 @@
 /* Page Layout */
 .page-container {
     display: flex;
-    height: 100vh;
+    height: calc(100vh - 76px);
+    /* Adjust for navbar height */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
@@ -497,7 +498,8 @@
     }
 
     .map-container {
-        height: 60vh;
+        height: calc(60vh - 35px);
+        /* Adjust for navbar on mobile */
         order: 1;
     }
 

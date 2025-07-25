@@ -6,11 +6,13 @@ import { AppComponent } from './app.component';
 import { MapComponent } from './map/map.component';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { NavbarComponent } from './navbar/navbar.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    MapComponent
+    MapComponent,
+    NavbarComponent
   ],
   imports: [
     BrowserModule,
